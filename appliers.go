@@ -45,6 +45,8 @@ func Min[T cmp.Ordered]() Mapper[T, T] {
 	}
 }
 
+// Sum produces an iterator that provides a moving sum of the
+// values from the underlying iterator.
 func Sum[T ~int | ~int64 | ~int32 | ~float64 | ~float32]() Mapper[T, T] {
 	var total T
 	return func(v T) (T, error) {
