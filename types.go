@@ -1,13 +1,5 @@
 package funky
 
-// An Applier is like a Mapper, but the output is the same type
-// as the input.
-type Applier[T any] func(T) (T, error)
-
-// A Coalescer is like a reducer, but the accumulator has the same
-// type as the inputs. For example, summing a list of numbers.
-type Coalescer[T any] func(acc T, value T) (T, error)
-
 // A MapEntry simply bundles a key-value pair into a single data
 // structure for us with iterators.
 type MapEntry[K comparable, V any] struct {
@@ -28,7 +20,8 @@ type Pair[L any, R any] struct {
 }
 
 // A Predicate accepts a value and returns true or false, plus
-// an error value.
+// an error value. If the error is non-nil, the boolean will be
+// assumed to be meaningless and ignored.
 type Predicate[T any] func(T) (bool, error)
 
 // A Reducer accepts two values and incorporates the second one
@@ -39,10 +32,3 @@ type Predicate[T any] func(T) (bool, error)
 //
 //	(sum, value) -> sum + value
 type Reducer[T any, R any] func(R, T) (R, error)
-
-// errorPair is a helper type that allows us to send full iterator
-// values through a channel.
-type errorPair[T any] struct {
-	value T
-	err   error
-}
