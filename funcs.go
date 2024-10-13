@@ -7,7 +7,7 @@ package funky
 // The last chunk may be shorter than size if the number of values
 // produced by the underlying iterator is indivisible by size.
 //
-// This function can be composed with, for example, Each and Parallel,
+// This function can be composed with, for example, Each and Buffer,
 // to improve the efficiency of parallel computations by performing
 // operations on several inputs in one goroutine.
 // func Chunk[T any](iterator Iter[T], size int) Iter[[]T] {
