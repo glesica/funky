@@ -24,6 +24,8 @@ all errors should survive to the end for handling by the caller.
 
 #### `Concat(...)`
 
+#### `Each(...)`
+
 #### `Reduce(...)`
 
 #### `Take(...)`
