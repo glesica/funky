@@ -24,7 +24,7 @@ func TestIter_Next(t *testing.T) {
 }
 
 func TestIter_Stop(t *testing.T) {
-	t.Run("should stop the iterator", func(t *testing.T) {
+	t.Run("should close the iterator", func(t *testing.T) {
 		it := &Iter[int]{
 			next: func() (Elem[int], bool) {
 				return Elem[int]{
@@ -37,7 +37,7 @@ func TestIter_Stop(t *testing.T) {
 		assert.True(t, valid)
 		assert.Equal(t, Elem[int]{val: 1}, elem)
 
-		it.Stop()
+		it.Close()
 
 		elem, valid = it.Next()
 		assert.False(t, valid)
@@ -46,7 +46,7 @@ func TestIter_Stop(t *testing.T) {
 }
 
 func TestIter_ToSeq(t *testing.T) {
-	t.Run("should stop when the iterator is exhausted", func(t *testing.T) {
+	t.Run("should close when the iterator is exhausted", func(t *testing.T) {
 		it := makeFinite(3)
 		var values []int
 		for v := range it.ToSeq() {
@@ -61,7 +61,7 @@ func TestIter_ToSeq(t *testing.T) {
 		assert.Equal(t, 0, elem.val)
 	})
 
-	t.Run("should stop when the loop breaks", func(t *testing.T) {
+	t.Run("should close when the loop breaks", func(t *testing.T) {
 		it := makeInfinite()
 		for v := range it.ToSeq() {
 			if v > 0 {
@@ -108,7 +108,7 @@ func makeFrom(elems []Elem[int]) *Iter[int] {
 
 			return elems[i], true
 		},
-		stop: func() {
+		close: func() {
 			i = len(elems)
 		},
 	}

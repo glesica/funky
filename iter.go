@@ -34,10 +34,9 @@ func ErrElem[T any](err error) (Elem[T], bool) {
 // stuff provided elsewhere.
 type Iter[T any] struct {
 	// next is a callback that returns the next element in the
-	// iterator. If this is nil, then the iterator is assumed to
-	// be stopped. This function may be called concurrently from
+	// iterator. This function may be called concurrently from
 	// multiple goroutines, so it must handle its own
-	// synchronization.
+	// synchronization, if necessary.
 	//
 	// However, calls to this function will be
 	// synchronized, so implementers can assume nothing will
@@ -45,13 +44,13 @@ type Iter[T any] struct {
 	// not been stopped.
 	next func() (Elem[T], bool)
 
-	// stop provides a callback to be called when the iterator
+	// close provides a callback to be called when the iterator
 	// is manually stopped. If there is no cleanup required, it
 	// can be omitted.
 	//
 	// There is no need to synchronize this because the outer
 	// implementation synchronizes reads and writes.
-	stop func()
+	close func()
 
 	lock sync.RWMutex
 }
@@ -68,7 +67,7 @@ func (it *Iter[T]) Next() (elem Elem[T], valid bool) {
 	defer it.lock.RUnlock()
 
 	// Now that we're in the critical region, if the next()
-	// callback hasn't been set to nil, we know that stop
+	// callback hasn't been set to nil, we know that close
 	// hasn't been called before we got here.
 
 	if it.next != nil {
@@ -78,11 +77,23 @@ func (it *Iter[T]) Next() (elem Elem[T], valid bool) {
 	return DoneElem[T]()
 }
 
-func (it *Iter[T]) Stop() {
-	// If we have already stopped, we can just bail since
-	// there is no way to un-stop.
+// Close tells the iterator to stop producing new values. Some
+// iterators may allow Next to return additional values, such as
+// when values have been buffered.
+func (it *Iter[T]) Close() {
+	// If we have already closed, we can just bail since
+	// there is no way to un-close.
 	if it.next == nil {
 		return
+	}
+
+	// Call the close handler, if one was provided. This is
+	// just intended for cleanup, so we don't have to worry
+	// much about it. We call close before setting next to nil
+	// to allow it to block if we've got anything in flight.
+	if it.close != nil {
+		it.close()
+		it.close = nil
 	}
 
 	// Get the write lock because we're going to update the
@@ -93,14 +104,6 @@ func (it *Iter[T]) Stop() {
 	// A stopped iterator has a nil next() callback, that's
 	// how we define it, so this is all we have to do.
 	it.next = nil
-
-	// Call the stop handler, if one was provided. This is
-	// just intended for cleanup, so we don't have to worry
-	// much about it.
-	if it.stop != nil {
-		it.stop()
-		it.stop = nil
-	}
 }
 
 func (it *Iter[T]) ToChan() chan<- T {
@@ -150,7 +153,7 @@ func FromSeq[T any](s iter.Seq[T]) *Iter[T] {
 
 			return ValElem(val)
 		},
-		stop: func() {
+		close: func() {
 			mut.Lock()
 			defer mut.Unlock()
 
@@ -186,7 +189,7 @@ func FromSlice[T any](s []T) *Iter[T] {
 				err: nil,
 			}, true
 		},
-		stop: func() {
+		close: func() {
 			mut.Lock()
 			i = len(s)
 			mut.Unlock()

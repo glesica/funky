@@ -27,7 +27,7 @@ func TestApply(t *testing.T) {
 		assert.Error(t, elem.err)
 	})
 
-	t.Run("should handle underlying iterator stop", func(t *testing.T) {
+	t.Run("should handle underlying iterator close", func(t *testing.T) {
 		it := makeConstant(1)
 		ait := Apply(it, func(i int) (string, error) {
 			return strconv.Itoa(i), nil
@@ -38,7 +38,7 @@ func TestApply(t *testing.T) {
 		assert.NoError(t, elem.err)
 		assert.Equal(t, "1", elem.val)
 
-		it.Stop()
+		it.Close()
 
 		elem, valid = ait.Next()
 		assert.False(t, valid)
@@ -46,7 +46,7 @@ func TestApply(t *testing.T) {
 		assert.Equal(t, "", elem.val)
 	})
 
-	t.Run("should stop correctly", func(t *testing.T) {
+	t.Run("should close correctly", func(t *testing.T) {
 		it := makeConstant(1)
 		ait := Apply(it, func(i int) (string, error) {
 			return strconv.Itoa(i), nil
@@ -57,7 +57,7 @@ func TestApply(t *testing.T) {
 		assert.NoError(t, elem.err)
 		assert.Equal(t, "1", elem.val)
 
-		ait.Stop()
+		ait.Close()
 
 		elem, valid = ait.Next()
 		assert.False(t, valid)

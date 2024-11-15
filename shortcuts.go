@@ -30,7 +30,7 @@ func NoError[T any](it *Iter[T]) *Iter[T] {
 				}
 			}
 		},
-		stop: func() {
+		close: func() {
 			it = nil
 		},
 	}
@@ -56,7 +56,7 @@ func Take[T any](it *Iter[T], n uint64) *Iter[T] {
 
 			return it.Next()
 		},
-		stop: func() {
+		close: func() {
 			it = nil
 		},
 	}
@@ -80,7 +80,7 @@ func Where[T any](it *Iter[T], keep Predicate[T]) *Iter[T] {
 				}
 			}
 		},
-		stop: func() {
+		close: func() {
 			it = nil
 		},
 	}
@@ -190,7 +190,7 @@ func Zip[L, R any](left *Iter[L], right *Iter[R]) *Iter[Pair[L, R]] {
 
 			return ValElem(Pair[L, R]{leftElem.val, rightElem.val})
 		},
-		stop: func() {
+		close: func() {
 			left = nil
 			right = nil
 		},

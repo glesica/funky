@@ -59,7 +59,7 @@ func Concat[T any](its ...*Iter[T]) *Iter[T] {
 				return elem, true
 			}
 		},
-		stop: func() {
+		close: func() {
 			its = nil
 		},
 	}

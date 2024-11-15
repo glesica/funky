@@ -80,7 +80,7 @@ package funky
 // Each applies the given function to each element produced by the
 // iterator.
 //
-// If the function returns Stop as its error, iteration will cease
+// If the function returns Close as its error, iteration will cease
 // and no further values will be processed.
 //
 // Note that this function is not thread-safe unless the iterator
@@ -101,7 +101,7 @@ package funky
 // 		}
 //
 // 		err = f(value)
-// 		if errors.Is(err, Stop) {
+// 		if errors.Is(err, Close) {
 // 			break
 // 		}
 // 		if err != nil {

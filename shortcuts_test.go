@@ -48,7 +48,7 @@ func TestNoError(t *testing.T) {
 		assertValues(t, iter, []int{}, true)
 	})
 
-	t.Run("should stop correctly", func(t *testing.T) {
+	t.Run("should close correctly", func(t *testing.T) {
 		//
 	})
 }
@@ -79,7 +79,7 @@ func TestTake(t *testing.T) {
 		//
 	})
 
-	t.Run("should not take after stop", func(t *testing.T) {
+	t.Run("should not take after close", func(t *testing.T) {
 		//
 	})
 }
@@ -112,13 +112,13 @@ func TestWhere(t *testing.T) {
 		assertValues(t, iter, []int{0, 3}, true)
 	})
 
-	t.Run("should stop correctly", func(t *testing.T) {
+	t.Run("should close correctly", func(t *testing.T) {
 		//
 	})
 }
 
 func TestWhile(t *testing.T) {
-	t.Run("should stop delivering values when one fails", func(t *testing.T) {
+	t.Run("should close delivering values when one fails", func(t *testing.T) {
 		iter := makeFinite(10)
 
 		iter = While(iter, func(v int) bool {

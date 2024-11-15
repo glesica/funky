@@ -43,7 +43,7 @@ func Parallel[T any](it *Iter[T], n uint32) *Iter[T] {
 
 			return elem, true
 		},
-		stop: func() {
+		close: func() {
 			done.Store(true)
 		},
 	}
