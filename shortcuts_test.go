@@ -7,6 +7,25 @@ import (
 	"github.com/alecthomas/assert/v2"
 )
 
+func TestChunk(t *testing.T) {
+	t.Run("should produce chunks of values", func(t *testing.T) {
+		iter := makeFinite(4)
+		chunks := Chunk(iter, 2)
+		first, valid := chunks.Next()
+		assert.True(t, valid)
+		assert.Equal(t, []int{0, 1}, first.val)
+	})
+
+	t.Run("should truncate on uneven count", func(t *testing.T) {
+		iter := makeFinite(4)
+		chunks := Chunk(iter, 3)
+		_, _ = chunks.Next()
+		second, valid := chunks.Next()
+		assert.True(t, valid)
+		assert.Equal(t, []int{3}, second.val)
+	})
+}
+
 func TestNoError(t *testing.T) {
 	t.Run("should remove errors from iterator", func(t *testing.T) {
 		iter := makeFrom([]Elem[int]{

@@ -14,6 +14,46 @@ type Pair[L any, R any] struct {
 
 type Predicate[T any] func(T) bool
 
+// Chunk returns an iterator that produces several values from
+// the original iterator as slices of values ("chunks").
+func Chunk[T any](iter *Iter[T], size uint64) *Iter[[]T] {
+	return &Iter[[]T]{
+		next: func() (Elem[[]T], bool) {
+			var vals []T
+			var errs error
+			for len(vals) < int(size) {
+				elem, valid := iter.Next()
+				if !valid {
+					break
+				}
+
+				if elem.err != nil {
+					errs = errors.Join(errs, elem.err)
+				}
+
+				vals = append(vals, elem.val)
+			}
+
+			if len(vals) == 0 {
+				return DoneElem[[]T]()
+			}
+
+			if errs == nil {
+				return ValElem(vals)
+			} else {
+				return Elem[[]T]{
+					val: vals,
+					err: errs,
+				}, true
+			}
+
+		},
+		close: func() {
+			size = 0
+		},
+	}
+}
+
 // NoError simply skips any elements that include an
 // error value.
 func NoError[T any](it *Iter[T]) *Iter[T] {
